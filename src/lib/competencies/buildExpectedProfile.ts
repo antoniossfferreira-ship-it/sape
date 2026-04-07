@@ -34,8 +34,24 @@ type CompetencyCatalogItem = {
   competencyAxis: string | null;
 };
 
+type SmartFallbackResolution = {
+  merged: Array<{
+    competencyId: string;
+    expectedLevel: number;
+    origins: ExpectedProfileOrigin[];
+  }>;
+  fallbackStrategy:
+    | "sector_priority"
+    | "role_plus_transversal"
+    | "transversal_only_no_role"
+    | "transversal_last_resort"
+    | "empty_no_fallback";
+};
+
 const collectionDocsCache = new Map<string, QueryDocumentSnapshot<DocumentData>[]>();
 let competencyCatalogCache: Map<string, CompetencyCatalogItem> | null = null;
+
+const MAX_EXPECTED_PROFILE_ITEMS = 8;
 
 function logJson(label: string, payload?: unknown) {
   try {
@@ -315,6 +331,103 @@ function dedupeLinks(links: CompetencyLink[]): CompetencyLink[] {
   }
 
   return Array.from(map.values());
+}
+
+function mergeCompetencySources(
+  groups: CompetencyLink[][]
+): Array<{
+  competencyId: string;
+  expectedLevel: number;
+  origins: ExpectedProfileOrigin[];
+}> {
+  const map = new Map<
+    string,
+    {
+      competencyId: string;
+      expectedLevel: number;
+      origins: Set<ExpectedProfileOrigin>;
+    }
+  >();
+
+  for (const group of groups) {
+    for (const item of group) {
+      const competencyId = preserveIdString(item.competencyId);
+      if (!competencyId) continue;
+
+      const existing = map.get(competencyId);
+
+      if (!existing) {
+        map.set(competencyId, {
+          competencyId,
+          expectedLevel: Number(item.expectedLevel) || 0,
+          origins: new Set<ExpectedProfileOrigin>([item.origin]),
+        });
+        continue;
+      }
+
+      existing.expectedLevel = Math.max(
+        Number(existing.expectedLevel) || 0,
+        Number(item.expectedLevel) || 0
+      );
+      existing.origins.add(item.origin);
+    }
+  }
+
+  return Array.from(map.values()).map((item) => ({
+    competencyId: item.competencyId,
+    expectedLevel: item.expectedLevel,
+    origins: Array.from(item.origins),
+  }));
+}
+
+function limitMergedItems(
+  items: Array<{
+    competencyId: string;
+    expectedLevel: number;
+    origins: ExpectedProfileOrigin[];
+  }>,
+  maxItems = MAX_EXPECTED_PROFILE_ITEMS
+) {
+  return items
+    .slice()
+    .sort((a, b) => {
+      const byLevel = (b.expectedLevel || 0) - (a.expectedLevel || 0);
+      if (byLevel !== 0) return byLevel;
+      return a.competencyId.localeCompare(b.competencyId);
+    })
+    .slice(0, maxItems);
+}
+
+function mergeAndLimitCompetencySources(
+  groups: CompetencyLink[][],
+  maxItems = MAX_EXPECTED_PROFILE_ITEMS
+) {
+  const merged = mergeCompetencySources(groups);
+  return limitMergedItems(merged, maxItems);
+}
+
+function appendUniqueLinks(
+  base: CompetencyLink[],
+  additions: CompetencyLink[],
+  maxItems = MAX_EXPECTED_PROFILE_ITEMS
+): CompetencyLink[] {
+  const result = [...base];
+  const existingIds = new Set(result.map((item) => preserveIdString(item.competencyId)));
+
+  for (const item of additions) {
+    const competencyId = preserveIdString(item.competencyId);
+    if (!competencyId) continue;
+    if (existingIds.has(competencyId)) continue;
+
+    result.push(item);
+    existingIds.add(competencyId);
+
+    if (result.length >= maxItems) {
+      break;
+    }
+  }
+
+  return result;
 }
 
 async function getUnitCompetencies(
@@ -694,23 +807,6 @@ async function getTransversalCompetencies(db: Firestore): Promise<CompetencyLink
   return dedupeLinks(items);
 }
 
-async function getGeneralCompetencies(db: Firestore): Promise<CompetencyLink[]> {
-  const docs = await getCollectionDocsCached(db, "competencias");
-
-  const items = docs
-    .map((docSnap) =>
-      normalizeLinkFromData(
-        docSnap.data() as Record<string, unknown>,
-        docSnap.id,
-        "general",
-        2
-      )
-    )
-    .filter(Boolean) as CompetencyLink[];
-
-  return dedupeLinks(items);
-}
-
 function deriveLegacyAxisFromCompetencyId(competencyId: string): string | null {
   const upper = preserveIdString(competencyId).toUpperCase();
 
@@ -758,6 +854,8 @@ function mapAxisToEixo(axis: string | null): string | null {
   if (normalized.includes("process")) return "E4";
   if (normalized.includes("planej")) return "E5";
   if (normalized.includes("gest")) return "E5";
+  if (normalized.includes("tecnologia e informacao")) return "E4";
+  if (normalized.includes("tecnologia da informacao")) return "E4";
 
   return null;
 }
@@ -818,51 +916,92 @@ async function loadCompetencyCatalog(
   return map;
 }
 
-function mergeCompetencySources(
-  groups: CompetencyLink[][]
-): Array<{
-  competencyId: string;
-  expectedLevel: number;
-  origins: ExpectedProfileOrigin[];
-}> {
-  const map = new Map<
-    string,
-    {
-      competencyId: string;
-      expectedLevel: number;
-      origins: Set<ExpectedProfileOrigin>;
-    }
-  >();
+function resolveMergedCompetenciesWithSmartFallback(params: {
+  hasEffectiveRole: boolean;
+  unitItems: CompetencyLink[];
+  sectorItems: CompetencyLink[];
+  roleItems: CompetencyLink[];
+  transversalItems: CompetencyLink[];
+}): SmartFallbackResolution {
+  const { hasEffectiveRole, unitItems, sectorItems, roleItems, transversalItems } = params;
 
-  for (const group of groups) {
-    for (const item of group) {
-      const competencyId = preserveIdString(item.competencyId);
-      if (!competencyId) continue;
+  // Prioridade 1: setor como base principal.
+  // Se houver setor, usa setor; complementa com função só se ainda houver espaço.
+  if (sectorItems.length > 0) {
+    const prioritizedSector = sectorItems
+      .slice()
+      .sort((a, b) => {
+        const byLevel = (b.expectedLevel || 0) - (a.expectedLevel || 0);
+        if (byLevel !== 0) return byLevel;
+        return a.competencyId.localeCompare(b.competencyId);
+      })
+      .slice(0, MAX_EXPECTED_PROFILE_ITEMS);
 
-      const existing = map.get(competencyId);
+    const completed = appendUniqueLinks(
+      prioritizedSector,
+      roleItems
+        .slice()
+        .sort((a, b) => {
+          const byLevel = (b.expectedLevel || 0) - (a.expectedLevel || 0);
+          if (byLevel !== 0) return byLevel;
+          return a.competencyId.localeCompare(b.competencyId);
+        }),
+      MAX_EXPECTED_PROFILE_ITEMS
+    );
 
-      if (!existing) {
-        map.set(competencyId, {
-          competencyId,
-          expectedLevel: Number(item.expectedLevel) || 0,
-          origins: new Set<ExpectedProfileOrigin>([item.origin]),
-        });
-        continue;
-      }
-
-      existing.expectedLevel = Math.max(
-        Number(existing.expectedLevel) || 0,
-        Number(item.expectedLevel) || 0
-      );
-      existing.origins.add(item.origin);
-    }
+    return {
+      merged: mergeAndLimitCompetencySources([completed], MAX_EXPECTED_PROFILE_ITEMS),
+      fallbackStrategy: "sector_priority",
+    };
   }
 
-  return Array.from(map.values()).map((item) => ({
-    competencyId: item.competencyId,
-    expectedLevel: item.expectedLevel,
-    origins: Array.from(item.origins),
-  }));
+  // Prioridade 2: sem setor, mas com função -> função + transversais
+  if (hasEffectiveRole && (roleItems.length > 0 || transversalItems.length > 0)) {
+    return {
+      merged: mergeAndLimitCompetencySources(
+        [roleItems, transversalItems],
+        MAX_EXPECTED_PROFILE_ITEMS
+      ),
+      fallbackStrategy: "role_plus_transversal",
+    };
+  }
+
+  // Prioridade 3: sem função -> apenas transversais
+  if (!hasEffectiveRole && transversalItems.length > 0) {
+    return {
+      merged: mergeAndLimitCompetencySources([transversalItems], MAX_EXPECTED_PROFILE_ITEMS),
+      fallbackStrategy: "transversal_only_no_role",
+    };
+  }
+
+  // Último recurso: se sobrou alguma transversal, usa ela
+  if (transversalItems.length > 0) {
+    return {
+      merged: mergeAndLimitCompetencySources([transversalItems], MAX_EXPECTED_PROFILE_ITEMS),
+      fallbackStrategy: "transversal_last_resort",
+    };
+  }
+
+  // Se não houver setor, mas houver apenas função sem transversais
+  if (roleItems.length > 0) {
+    return {
+      merged: mergeAndLimitCompetencySources([roleItems], MAX_EXPECTED_PROFILE_ITEMS),
+      fallbackStrategy: "role_plus_transversal",
+    };
+  }
+
+  // Unidade isolada pode ser usada só se não houver setor/função/transversal
+  if (unitItems.length > 0) {
+    return {
+      merged: mergeAndLimitCompetencySources([unitItems], MAX_EXPECTED_PROFILE_ITEMS),
+      fallbackStrategy: "sector_priority",
+    };
+  }
+
+  return {
+    merged: [],
+    fallbackStrategy: "empty_no_fallback",
+  };
 }
 
 function enrichCombinedItems(
@@ -913,14 +1052,12 @@ function buildSourceDiagnostics(groups: {
   sectorItems: CompetencyLink[];
   roleItems: CompetencyLink[];
   transversalItems: CompetencyLink[];
-  generalItems: CompetencyLink[];
 }) {
   return {
     unitItems: groups.unitItems.length,
     sectorItems: groups.sectorItems.length,
     roleItems: groups.roleItems.length,
     transversalItems: groups.transversalItems.length,
-    generalItems: groups.generalItems.length,
   };
 }
 
@@ -964,7 +1101,8 @@ export async function buildExpectedProfile(params: {
       roleId: preserveIdString(roleId) || null,
       effectiveRoleId: effectiveRoleId || null,
       educationLevel: educationLevel || null,
-      strategy: "unit -> sector -> role -> transversais -> competencias(fallback)",
+      strategy:
+        "prioridade setor -> funcao -> transversais, com limite maximo de 8",
     });
 
     const [unitItems, sectorItems, roleItems, transversalItems] = await Promise.all([
@@ -974,31 +1112,28 @@ export async function buildExpectedProfile(params: {
       getTransversalCompetencies(db),
     ]);
 
-    let merged = mergeCompetencySources([
+    const resolution = resolveMergedCompetenciesWithSmartFallback({
+      hasEffectiveRole: !!effectiveRoleId,
       unitItems,
       sectorItems,
       roleItems,
       transversalItems,
-    ]);
+    });
 
-    let generalItems: CompetencyLink[] = [];
-
-    if (!merged.length) {
-      generalItems = await getGeneralCompetencies(db);
-      merged = mergeCompetencySources([generalItems]);
-    }
+    const merged = resolution.merged;
 
     const sourceDiagnostics = buildSourceDiagnostics({
       unitItems,
       sectorItems,
       roleItems,
       transversalItems,
-      generalItems,
     });
 
     if (!merged.length) {
-      logJson("[buildExpectedProfile] nenhum resultado após merge principal.", {
+      logJson("[buildExpectedProfile] nenhum resultado após priorização.", {
         ...sourceDiagnostics,
+        fallbackStrategy: resolution.fallbackStrategy,
+        effectiveRoleId: effectiveRoleId || null,
       });
     }
 
@@ -1009,10 +1144,13 @@ export async function buildExpectedProfile(params: {
       ...sourceDiagnostics,
       merged: merged.length,
       enriched: enriched.length,
+      fallbackStrategy: resolution.fallbackStrategy,
+      maxItemsApplied: MAX_EXPECTED_PROFILE_ITEMS,
       unitCompetencyIds: unitItems.map((item) => item.competencyId),
       sectorCompetencyIds: sectorItems.map((item) => item.competencyId),
       roleCompetencyIds: roleItems.map((item) => item.competencyId),
       transversalCompetencyIds: transversalItems.map((item) => item.competencyId),
+      finalCompetencyIds: enriched.map((item) => item.competencyId),
       educationLevelAppliedAsMetadataOnly: !!educationLevel,
     });
 
