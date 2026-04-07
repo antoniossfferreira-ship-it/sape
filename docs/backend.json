@@ -1,0 +1,728 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile information within the EduCompetence Flow application. This entity stores personal and institutional details for a server at UNEB.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity. This corresponds to the Firebase Authentication User ID (UID)."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the user."
+        },
+        "registrationNumber": {
+          "type": "string",
+          "description": "The unique institutional registration number ('matrícula') of the user at UNEB."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user, primarily used for login and notifications.",
+          "format": "email"
+        },
+        "roleId": {
+          "type": "string",
+          "description": "Reference to the user's formal role at UNEB (e.g., 'Técnico Universitário'). (Relationship: Role 1:N UserProfile)"
+        },
+        "academicBackground": {
+          "type": "string",
+          "description": "A description of the user's highest academic formation or degree."
+        },
+        "unebTenure": {
+          "type": "number",
+          "description": "The number of years the user has been working at UNEB."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when this user profile record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when this user profile record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "registrationNumber",
+        "email",
+        "roleId",
+        "academicBackground",
+        "unebTenure",
+        "createdAt"
+      ]
+    },
+    "UserWorkContext": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserWorkContext",
+      "type": "object",
+      "description": "Stores a user's current work context, including their organizational unit, sector, and any formal function they hold.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserWorkContext entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile this work context belongs to. (Relationship: UserProfile 1:1 UserWorkContext)"
+        },
+        "unitId": {
+          "type": "string",
+          "description": "Reference to the organizational unit where the user works. (Relationship: Unit 1:N UserWorkContext)"
+        },
+        "sectorId": {
+          "type": "string",
+          "description": "Reference to the specific sector within the unit where the user works. (Relationship: Sector 1:N UserWorkContext)"
+        },
+        "hasFormalRole": {
+          "type": "boolean",
+          "description": "Indicates whether the user possesses a formal function within their work context."
+        },
+        "formalRoleDescription": {
+          "type": "string",
+          "description": "Description of the formal function held by the user, if 'hasFormalRole' is true."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when this work context record was created or last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "unitId",
+        "sectorId",
+        "hasFormalRole",
+        "createdAt"
+      ]
+    },
+    "Competency": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Competency",
+      "type": "object",
+      "description": "Defines a specific competency required or desired for professional development.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Competency entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the competency (e.g., 'Comunicação Eficaz')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of what the competency entails."
+        },
+        "category": {
+          "type": "string",
+          "description": "The category to which this competency belongs (e.g., 'Comportamental', 'Técnica')."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "category"
+      ]
+    },
+    "ExpectedCompetencyLevel": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ExpectedCompetencyLevel",
+      "type": "object",
+      "description": "Defines the expected level for a specific competency for a given role.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ExpectedCompetencyLevel entity."
+        },
+        "roleId": {
+          "type": "string",
+          "description": "Reference to the Role for which this competency level is expected. (Relationship: Role 1:N ExpectedCompetencyLevel)"
+        },
+        "competencyId": {
+          "type": "string",
+          "description": "Reference to the Competency for which the level is expected. (Relationship: Competency 1:N ExpectedCompetencyLevel)"
+        },
+        "expectedLevel": {
+          "type": "number",
+          "description": "The numerical level (1 to 3) expected for this competency within the specified role."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of what attaining this expected level signifies for the given competency and role."
+        }
+      },
+      "required": [
+        "id",
+        "roleId",
+        "competencyId",
+        "expectedLevel",
+        "description"
+      ]
+    },
+    "UserCompetencyAssessment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserCompetencyAssessment",
+      "type": "object",
+      "description": "Records a user's self-assessment of their current level for a specific competency.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for this specific competency assessment. In Firestore, this will be the competencyId when stored under a user's assessments subcollection. (Relationship: Competency 1:N UserCompetencyAssessment)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who performed the self-assessment. (Relationship: UserProfile 1:N UserCompetencyAssessment)"
+        },
+        "level": {
+          "type": "number",
+          "description": "The self-assessed level (1 to 3) for the competency."
+        },
+        "assessmentDate": {
+          "type": "string",
+          "description": "Date and time when the self-assessment was performed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "level",
+        "assessmentDate"
+      ]
+    },
+    "Course": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Course",
+      "type": "object",
+      "description": "Details about a course available in the catalog for recommendation.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Course entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the course."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the course content and objectives."
+        },
+        "provider": {
+          "type": "string",
+          "description": "The organization or platform offering the course."
+        },
+        "durationHours": {
+          "type": "number",
+          "description": "The estimated duration of the course in hours."
+        },
+        "link": {
+          "type": "string",
+          "description": "The URL to the official course page or enrollment link.",
+          "format": "uri"
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the course (e.g., 'Desenvolvimento Pessoal', 'Tecnologia')."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "provider",
+        "durationHours",
+        "link",
+        "category"
+      ]
+    },
+    "CourseCompetency": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CourseCompetency",
+      "type": "object",
+      "description": "Establishes a many-to-many relationship between a Course and the Competencies it helps develop.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CourseCompetency linkage entity."
+        },
+        "courseId": {
+          "type": "string",
+          "description": "Reference to the Course. (Relationship: Course N:N Competency)"
+        },
+        "competencyId": {
+          "type": "string",
+          "description": "Reference to the Competency. (Relationship: Course N:N Competency)"
+        },
+        "improvesLevel": {
+          "type": "number",
+          "description": "The target competency level (1 to 3) that this course aims to help a user achieve or improve towards."
+        }
+      },
+      "required": [
+        "id",
+        "courseId",
+        "competencyId",
+        "improvesLevel"
+      ]
+    },
+    "Recommendation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Recommendation",
+      "type": "object",
+      "description": "Records a specific course recommendation generated for a user based on their competency gaps.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for this specific recommendation instance."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who received this recommendation. (Relationship: UserProfile 1:N Recommendation)"
+        },
+        "competencyId": {
+          "type": "string",
+          "description": "Reference to the Competency for which this course is recommended to bridge a gap. (Relationship: Competency 1:N Recommendation)"
+        },
+        "courseId": {
+          "type": "string",
+          "description": "Reference to the Course that is being recommended. (Relationship: Course 1:N Recommendation)"
+        },
+        "assessedLevel": {
+          "type": "number",
+          "description": "The user's self-assessed level for the competency at the time this recommendation was generated."
+        },
+        "expectedLevel": {
+          "type": "number",
+          "description": "The expected level for the competency based on the user's role at the time this recommendation was generated."
+        },
+        "recommendationDate": {
+          "type": "string",
+          "description": "Date and time when the recommendation was generated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "competencyId",
+        "courseId",
+        "assessedLevel",
+        "expectedLevel",
+        "recommendationDate"
+      ]
+    },
+    "RecommendationFeedback": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "RecommendationFeedback",
+      "type": "object",
+      "description": "Captures user feedback (like/dislike) on a specific course recommendation.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for this specific feedback entry."
+        },
+        "recommendationId": {
+          "type": "string",
+          "description": "Reference to the Recommendation this feedback is for. (Relationship: Recommendation 1:N RecommendationFeedback)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who provided the feedback. (Relationship: UserProfile 1:N RecommendationFeedback)"
+        },
+        "feedbackType": {
+          "type": "string",
+          "description": "The type of feedback provided ('liked' or 'disliked')."
+        },
+        "feedbackDate": {
+          "type": "string",
+          "description": "Date and time when the feedback was provided.",
+          "format": "date-time"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Optional text comment provided by the user regarding the recommendation."
+        }
+      },
+      "required": [
+        "id",
+        "recommendationId",
+        "userId",
+        "feedbackType",
+        "feedbackDate"
+      ]
+    },
+    "CompletedCourse": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CompletedCourse",
+      "type": "object",
+      "description": "Records a course that a user has successfully completed, including an optional certificate.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CompletedCourse record."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who completed the course. (Relationship: UserProfile 1:N CompletedCourse)"
+        },
+        "courseId": {
+          "type": "string",
+          "description": "Reference to the Course that was completed. (Relationship: Course 1:N CompletedCourse)"
+        },
+        "completionDate": {
+          "type": "string",
+          "description": "The date when the course was completed.",
+          "format": "date"
+        },
+        "certificateUrl": {
+          "type": "string",
+          "description": "A URL to the stored PDF certificate of completion.",
+          "format": "uri"
+        },
+        "feedback": {
+          "type": "string",
+          "description": "Optional free-text feedback or review provided by the user for the completed course."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "courseId",
+        "completionDate"
+      ]
+    },
+    "Unit": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Unit",
+      "type": "object",
+      "description": "Represents an organizational unit within the University of the State of Bahia (UNEB).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Unit entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The official name of the organizational unit (e.g., 'Departamento de Educação')."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Sector": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Sector",
+      "type": "object",
+      "description": "Represents a specific sector or department, typically within an organizational unit, at UNEB.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Sector entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the sector (e.g., 'Recursos Humanos')."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Role": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Role",
+      "type": "object",
+      "description": "Defines a formal job role or position for technical-administrative servers at UNEB.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Role entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the role (e.g., 'Técnico Universitário', 'Analista Universitário')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the main responsibilities and duties associated with this role."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information, uniquely identified by their Firebase Authentication UID. This collection forms the root for all user-specific data. Owner is `userId`."
+        }
+      },
+      {
+        "path": "users/{userId}/workContext/current",
+        "definition": {
+          "entityName": "UserWorkContext",
+          "schema": {
+            "$ref": "#/backend/entities/UserWorkContext"
+          },
+          "description": "A singleton subcollection storing the user's current work context. The document ID 'current' is fixed. Authorization is path-based, with `userId` implicitly owning this record. Includes denormalized 'userId' field (implicitly by path)."
+        }
+      },
+      {
+        "path": "users/{userId}/assessments/{competencyId}",
+        "definition": {
+          "entityName": "UserCompetencyAssessment",
+          "schema": {
+            "$ref": "#/backend/entities/UserCompetencyAssessment"
+          },
+          "description": "Stores a user's self-assessment for a specific competency. The document ID is the `competencyId`. Authorization is path-based, with `userId` implicitly owning these records. Includes denormalized 'userId' field (implicitly by path).",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the UserProfile (Firebase Auth UID)."
+            },
+            {
+              "name": "competencyId",
+              "description": "The unique identifier of the Competency being assessed."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}/recommendations/{recommendationId}",
+        "definition": {
+          "entityName": "Recommendation",
+          "schema": {
+            "$ref": "#/backend/entities/Recommendation"
+          },
+          "description": "Records a specific course recommendation generated for a user. Authorization is path-based, with `userId` implicitly owning these records. Includes denormalized 'userId' field (implicitly by path).",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the UserProfile (Firebase Auth UID)."
+            },
+            {
+              "name": "recommendationId",
+              "description": "The unique identifier for the recommendation."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}/recommendations/{recommendationId}/feedback/{feedbackId}",
+        "definition": {
+          "entityName": "RecommendationFeedback",
+          "schema": {
+            "$ref": "#/backend/entities/RecommendationFeedback"
+          },
+          "description": "Captures user feedback on a specific course recommendation. Authorization is path-based, with `userId` implicitly owning these records. Includes denormalized 'userId' field (implicitly by path).",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the UserProfile (Firebase Auth UID)."
+            },
+            {
+              "name": "recommendationId",
+              "description": "The unique identifier for the parent recommendation."
+            },
+            {
+              "name": "feedbackId",
+              "description": "The unique identifier for this feedback entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}/completedCourses/{completedCourseId}",
+        "definition": {
+          "entityName": "CompletedCourse",
+          "schema": {
+            "$ref": "#/backend/entities/CompletedCourse"
+          },
+          "description": "Records a course completed by a user. Authorization is path-based, with `userId` implicitly owning these records. Includes denormalized 'userId' field (implicitly by path).",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the UserProfile (Firebase Auth UID)."
+            },
+            {
+              "name": "completedCourseId",
+              "description": "The unique identifier for the completed course record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "competencies/{competencyId}",
+        "definition": {
+          "entityName": "Competency",
+          "schema": {
+            "$ref": "#/backend/entities/Competency"
+          },
+          "description": "Global catalog of competencies. Read-only for all authenticated users; writeable by administrators only.",
+          "params": [
+            {
+              "name": "competencyId",
+              "description": "The unique identifier for the competency."
+            }
+          ]
+        }
+      },
+      {
+        "path": "expectedCompetencyLevels/{expectedCompetencyLevelId}",
+        "definition": {
+          "entityName": "ExpectedCompetencyLevel",
+          "schema": {
+            "$ref": "#/backend/entities/ExpectedCompetencyLevel"
+          },
+          "description": "Defines the expected competency level for a specific role. Read-only for all authenticated users; writeable by administrators only.",
+          "params": [
+            {
+              "name": "expectedCompetencyLevelId",
+              "description": "The unique identifier for the expected competency level definition."
+            }
+          ]
+        }
+      },
+      {
+        "path": "courses/{courseId}",
+        "definition": {
+          "entityName": "Course",
+          "schema": {
+            "$ref": "#/backend/entities/Course"
+          },
+          "description": "Global catalog of courses. Read-only for all authenticated users; writeable by administrators only.",
+          "params": [
+            {
+              "name": "courseId",
+              "description": "The unique identifier for the course."
+            }
+          ]
+        }
+      },
+      {
+        "path": "courseCompetencies/{courseCompetencyId}",
+        "definition": {
+          "entityName": "CourseCompetency",
+          "schema": {
+            "$ref": "#/backend/entities/CourseCompetency"
+          },
+          "description": "Establishes a many-to-many relationship between a Course and the Competencies it helps develop. Read-only for all authenticated users; writeable by administrators only.",
+          "params": [
+            {
+              "name": "courseCompetencyId",
+              "description": "The unique identifier for the course-competency linkage."
+            }
+          ]
+        }
+      },
+      {
+        "path": "units/{unitId}",
+        "definition": {
+          "entityName": "Unit",
+          "schema": {
+            "$ref": "#/backend/entities/Unit"
+          },
+          "description": "Global list of organizational units. Read-only for all authenticated users; writeable by administrators only.",
+          "params": [
+            {
+              "name": "unitId",
+              "description": "The unique identifier for the organizational unit."
+            }
+          ]
+        }
+      },
+      {
+        "path": "sectors/{sectorId}",
+        "definition": {
+          "entityName": "Sector",
+          "schema": {
+            "$ref": "#/backend/entities/Sector"
+          },
+          "description": "Global list of sectors within organizational units. Read-only for all authenticated users; writeable by administrators only.",
+          "params": [
+            {
+              "name": "sectorId",
+              "description": "The unique identifier for the sector."
+            }
+          ]
+        }
+      },
+      {
+        "path": "roles/{roleId}",
+        "definition": {
+          "entityName": "Role",
+          "schema": {
+            "$ref": "#/backend/entities/Role"
+          },
+          "description": "Global list of formal job roles. Read-only for all authenticated users; writeable by administrators only.",
+          "params": [
+            {
+              "name": "roleId",
+              "description": "The unique identifier for the job role."
+            }
+          ]
+        }
+      },
+      {
+        "path": "roles_admin/{userId}",
+        "definition": {
+          "entityName": "Role",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Dedicated collection for administrative role assignments. The existence of a document here (with `userId` as ID) grants administrative privileges, following DBAC 'Existence over Content'. Read/write by administrators only.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Auth UID of a user with administrative privileges."
+            }
+          ]
+        }
+      },
+      {
+        "path": "roles_researcher/{userId}",
+        "definition": {
+          "entityName": "Role",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Dedicated collection for researcher role assignments. The existence of a document here (with `userId` as ID) grants researcher privileges to view all user data, following DBAC 'Existence over Content'. Read/write by administrators only.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Auth UID of a user with researcher privileges."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure for EduCompetence Flow is designed around two core principles: strong user data isolation via path-based ownership and clear segregation of global, reference data. All user-specific information (profiles, work context, competency assessments, recommendations, and completed courses) is organized under a top-level `users` collection, with each user's data rooted at `users/{userId}/`, where `userId` directly corresponds to the Firebase Authentication UID (`request.auth.uid`). This critical design choice directly ensures **Authorization Independence (CRITICAL)** as security rules for user data can simply check `request.auth.uid == userId` without needing to perform `get()` operations on parent documents to determine ownership or permissions. This prevents complex, brittle, and non-atomic rules.\n\nGlobal, read-only data (e.g., `competencies`, `courses`, `units`, `sectors`, `roles`, `expectedCompetencyLevels`, `courseCompetencies`) are stored in dedicated top-level collections. This **Structural Segregation** ensures that all documents within these collections share the same security posture (authenticated read for all users, admin-writeable). This separation eliminates the need for `get()` calls for shared resources and simplifies rules, making them highly debuggable.\n\n**DBAC (No Custom Claims)** is implemented using dedicated 'role' collections: `roles_admin/{userId}` and `roles_researcher/{userId}`. The mere existence of a document for a specific `userId` in these collections grants the respective role. This allows security rules to use efficient `exists()` checks for role verification, rather than relying on custom claims or complex database queries within rules.\n\n**QAPs (Rules are not Filters)** is fully supported by this design. For user-specific data, `list` operations are inherently secure because the `userId` in the path precisely matches the authenticated user (`request.auth.uid`). A user can only list their own sub-collections, and the rules enforce this explicitly, ensuring that no unauthorized data is ever returned. For global reference data, `list` operations on collections like `/competencies` or `/courses` are secure because all documents within these collections are uniformly accessible (read-only for authenticated users). The system does not mix public and private data in the same collection that would require rules to 'filter' the results. The researcher role, enabled by `roles_researcher/{userId}`, allows a researcher to `list` all users and their associated data because their authorization implicitly grants read access to all `users/{userId}` paths, again without rules needing to filter at query time."
+  }
+}

@@ -1,0 +1,68 @@
+import type { OrgUnit } from "@/types/org";
+
+export const orgUnits: OrgUnit[] = [
+  {
+    id: "dcht_brumado",
+    name: "Departamento de Ciências Humanas e Tecnologias",
+    acronym: "DCHT",
+    city: "Brumado",
+    unitGroup: "DEPARTAMENTOS_PADRAO",
+    active: true,
+  },
+  {
+    id: "dtcs_juazeiro",
+    name: "Departamento de Tecnologia e Ciências Sociais",
+    acronym: "DTCS",
+    city: "Juazeiro",
+    unitGroup: "DEPARTAMENTOS_PADRAO",
+    active: true,
+  },
+  {
+    id: "dch3_juazeiro",
+    name: "Departamento de Ciências Humanas",
+    acronym: "DCH III",
+    city: "Juazeiro",
+    unitGroup: "DEPARTAMENTOS_PADRAO",
+    active: true,
+  },
+  {
+    id: "dmce_lauro_de_freitas",
+    name: "Departamento de Modelagem, Computação e Ciências Exatas",
+    acronym: "DMCE",
+    city: "Lauro de Freitas",
+    unitGroup: "DEPARTAMENTOS_PADRAO",
+    active: true,
+  },
+  {
+    id: "dedc_paulo_afonso",
+    name: "Departamento de Educação",
+    acronym: "DEDC",
+    city: "Paulo Afonso",
+    unitGroup: "DEPARTAMENTOS_PADRAO",
+    active: true,
+  },
+  {
+    id: "pgdp",
+    name: "Pró-Reitoria de Gestão e Desenvolvimento de Pessoas",
+    acronym: "PGDP",
+    city: "Salvador",
+    unitGroup: "PGDP",
+    active: true,
+  },
+  {
+    id: "sec_financas",
+    name: "Secretaria Especial de Contabilidade e Finanças",
+    acronym: "SECONF",
+    city: "Salvador",
+    unitGroup: "SECONF",
+    active: true,
+  },
+  {
+    id: "cepaia",
+    name: "Centro de Estudos dos Povos Afro-Indígenas Americanos",
+    acronym: "CEPAIA",
+    city: "Salvador",
+    unitGroup: "CEPAIA",
+    active: true,
+  },
+];

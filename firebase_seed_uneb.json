@@ -1,0 +1,557 @@
+{
+  "unidades": {
+    "cepaia": {
+      "id": "cepaia",
+      "nome": "Centro de Estudos dos Povos Afro-Indígenas Americanos",
+      "sigla": "CEPAIA",
+      "tipo": "órgão",
+      "campus": "",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "pgdp": {
+      "id": "pgdp",
+      "nome": "Pró-Reitoria de Gestão e Desenvolvimento de Pessoas",
+      "sigla": "PGDP",
+      "tipo": "setor central",
+      "campus": "",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "selcc": {
+      "id": "selcc",
+      "nome": "Secretaria Especial de Licitações, Contratos e Convênios",
+      "sigla": "SELCC",
+      "tipo": "secretaria especial",
+      "campus": "",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "seconf": {
+      "id": "seconf",
+      "nome": "Secretaria Especial de Contabilidade e Finanças",
+      "sigla": "SECONF",
+      "tipo": "secretaria especial",
+      "campus": "",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "dcht_brumado": {
+      "id": "dcht_brumado",
+      "nome": "Departamento de Ciências Humanas e Tecnologias",
+      "sigla": "DCHT",
+      "tipo": "departamento",
+      "campus": "Brumado",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dtcs_juazeiro": {
+      "id": "dtcs_juazeiro",
+      "nome": "Departamento de Tecnologia e Ciências Sociais",
+      "sigla": "DTCS",
+      "tipo": "departamento",
+      "campus": "Juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dch3_juazeiro": {
+      "id": "dch3_juazeiro",
+      "nome": "Departamento de Ciências Humanas",
+      "sigla": "DCH III",
+      "tipo": "departamento",
+      "campus": "Juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dmce_lauro_freitas": {
+      "id": "dmce_lauro_freitas",
+      "nome": "Departamento Multidisciplinar de Ciências e Educação",
+      "sigla": "DMCE",
+      "tipo": "departamento",
+      "campus": "Lauro de Freitas",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dedc_paulo_afonso": {
+      "id": "dedc_paulo_afonso",
+      "nome": "Departamento de Educação",
+      "sigla": "DEDC",
+      "tipo": "departamento",
+      "campus": "Paulo Afonso",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    }
+  },
+  "setores": {
+    "cepaia_cesde": {
+      "id": "cepaia_cesde",
+      "nome": "Centro de Estudos de Direito Educacional",
+      "sigla": "CESDE",
+      "tipo": "setor",
+      "macroArea": "educacao_direito",
+      "unidadeId": "cepaia",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "cepaia_nuec": {
+      "id": "cepaia_nuec",
+      "nome": "Núcleo de Ética e Cidadania",
+      "sigla": "NUEC",
+      "tipo": "setor",
+      "macroArea": "etica_cidadania",
+      "unidadeId": "cepaia",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "pgdp_gabinete_pro_reitoria": {
+      "id": "pgdp_gabinete_pro_reitoria",
+      "nome": "Gabinete da Pró-Reitoria",
+      "sigla": "",
+      "tipo": "gabinete",
+      "macroArea": "gestao",
+      "unidadeId": "pgdp",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "pgdp_gerencia_gestao_pessoas": {
+      "id": "pgdp_gerencia_gestao_pessoas",
+      "nome": "Gerência de Gestão de Pessoas",
+      "sigla": "",
+      "tipo": "gerência",
+      "macroArea": "gestao_pessoas",
+      "unidadeId": "pgdp",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "pgdp_gerencia_selecao_acompanhamento_docente": {
+      "id": "pgdp_gerencia_selecao_acompanhamento_docente",
+      "nome": "Gerência de Seleção e Acompanhamento Docente",
+      "sigla": "",
+      "tipo": "gerência",
+      "macroArea": "selecao_docente",
+      "unidadeId": "pgdp",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "pgdp_gerencia_desenvolvimento_pessoas": {
+      "id": "pgdp_gerencia_desenvolvimento_pessoas",
+      "nome": "Gerência de Desenvolvimento de Pessoas",
+      "sigla": "",
+      "tipo": "gerência",
+      "macroArea": "desenvolvimento_pessoas",
+      "unidadeId": "pgdp",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "selcc_gercont": {
+      "id": "selcc_gercont",
+      "nome": "Gerência de Contratos",
+      "sigla": "GERCONT",
+      "tipo": "gerência",
+      "macroArea": "contratos",
+      "unidadeId": "selcc",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "selcc_gerconv": {
+      "id": "selcc_gerconv",
+      "nome": "Gerência de Convênios",
+      "sigla": "GERCONV",
+      "tipo": "gerência",
+      "macroArea": "convenios",
+      "unidadeId": "selcc",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "selcc_gerlict": {
+      "id": "selcc_gerlict",
+      "nome": "Gerência de Licitação",
+      "sigla": "GERLICT",
+      "tipo": "gerência",
+      "macroArea": "licitacao",
+      "unidadeId": "selcc",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "seconf_gabinete": {
+      "id": "seconf_gabinete",
+      "nome": "Gabinete",
+      "sigla": "",
+      "tipo": "gabinete",
+      "macroArea": "gestao",
+      "unidadeId": "seconf",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "seconf_gerencia_contabil": {
+      "id": "seconf_gerencia_contabil",
+      "nome": "Gerência Contábil",
+      "sigla": "",
+      "tipo": "gerência",
+      "macroArea": "contabil",
+      "unidadeId": "seconf",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "seconf_gerencia_financeira": {
+      "id": "seconf_gerencia_financeira",
+      "nome": "Gerência Financeira",
+      "sigla": "",
+      "tipo": "gerência",
+      "macroArea": "financeiro",
+      "unidadeId": "seconf",
+      "fonte": "unidades setores.pdf - p.1",
+      "active": true
+    },
+    "dcht_brumado_gabinete_direcao": {
+      "id": "dcht_brumado_gabinete_direcao",
+      "nome": "Gabinete da Direção",
+      "sigla": "",
+      "tipo": "gabinete",
+      "macroArea": "gestao",
+      "unidadeId": "dcht_brumado",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dcht_brumado_coordenacao_administrativa": {
+      "id": "dcht_brumado_coordenacao_administrativa",
+      "nome": "Coordenação Administrativa",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "administrativo",
+      "unidadeId": "dcht_brumado",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dcht_brumado_coordenacao_orcamentaria_financeira_contabil": {
+      "id": "dcht_brumado_coordenacao_orcamentaria_financeira_contabil",
+      "nome": "Coordenação Orçamentária, Financeira e Contábil",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "financeiro",
+      "unidadeId": "dcht_brumado",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dcht_brumado_coordenacao_academica": {
+      "id": "dcht_brumado_coordenacao_academica",
+      "nome": "Coordenação Acadêmica",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "academico",
+      "unidadeId": "dcht_brumado",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dcht_brumado_coordenacao_biblioteca": {
+      "id": "dcht_brumado_coordenacao_biblioteca",
+      "nome": "Coordenação de Biblioteca",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "biblioteca",
+      "unidadeId": "dcht_brumado",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dcht_brumado_coordenacao_tic": {
+      "id": "dcht_brumado_coordenacao_tic",
+      "nome": "Coordenação de Tecnologia da Informação e Comunicação (TIC)",
+      "sigla": "TIC",
+      "tipo": "coordenação",
+      "macroArea": "tecnologia",
+      "unidadeId": "dcht_brumado",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dcht_brumado_coordenacao_laboratorios": {
+      "id": "dcht_brumado_coordenacao_laboratorios",
+      "nome": "Coordenação de Laboratórios",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "laboratorios",
+      "unidadeId": "dcht_brumado",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dtcs_juazeiro_gabinete_direcao": {
+      "id": "dtcs_juazeiro_gabinete_direcao",
+      "nome": "Gabinete da Direção",
+      "sigla": "",
+      "tipo": "gabinete",
+      "macroArea": "gestao",
+      "unidadeId": "dtcs_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dtcs_juazeiro_coordenacao_administrativa": {
+      "id": "dtcs_juazeiro_coordenacao_administrativa",
+      "nome": "Coordenação Administrativa",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "administrativo",
+      "unidadeId": "dtcs_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dtcs_juazeiro_coordenacao_orcamentaria_financeira_contabil": {
+      "id": "dtcs_juazeiro_coordenacao_orcamentaria_financeira_contabil",
+      "nome": "Coordenação Orçamentária, Financeira e Contábil",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "financeiro",
+      "unidadeId": "dtcs_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dtcs_juazeiro_coordenacao_academica": {
+      "id": "dtcs_juazeiro_coordenacao_academica",
+      "nome": "Coordenação Acadêmica",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "academico",
+      "unidadeId": "dtcs_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dtcs_juazeiro_coordenacao_biblioteca": {
+      "id": "dtcs_juazeiro_coordenacao_biblioteca",
+      "nome": "Coordenação de Biblioteca",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "biblioteca",
+      "unidadeId": "dtcs_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dtcs_juazeiro_coordenacao_tic": {
+      "id": "dtcs_juazeiro_coordenacao_tic",
+      "nome": "Coordenação de Tecnologia da Informação e Comunicação (TIC)",
+      "sigla": "TIC",
+      "tipo": "coordenação",
+      "macroArea": "tecnologia",
+      "unidadeId": "dtcs_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dtcs_juazeiro_coordenacao_laboratorios": {
+      "id": "dtcs_juazeiro_coordenacao_laboratorios",
+      "nome": "Coordenação de Laboratórios",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "laboratorios",
+      "unidadeId": "dtcs_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dch3_juazeiro_gabinete_direcao": {
+      "id": "dch3_juazeiro_gabinete_direcao",
+      "nome": "Gabinete da Direção",
+      "sigla": "",
+      "tipo": "gabinete",
+      "macroArea": "gestao",
+      "unidadeId": "dch3_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dch3_juazeiro_coordenacao_administrativa": {
+      "id": "dch3_juazeiro_coordenacao_administrativa",
+      "nome": "Coordenação Administrativa",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "administrativo",
+      "unidadeId": "dch3_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dch3_juazeiro_coordenacao_orcamentaria_financeira_contabil": {
+      "id": "dch3_juazeiro_coordenacao_orcamentaria_financeira_contabil",
+      "nome": "Coordenação Orçamentária, Financeira e Contábil",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "financeiro",
+      "unidadeId": "dch3_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dch3_juazeiro_coordenacao_academica": {
+      "id": "dch3_juazeiro_coordenacao_academica",
+      "nome": "Coordenação Acadêmica",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "academico",
+      "unidadeId": "dch3_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dch3_juazeiro_coordenacao_biblioteca": {
+      "id": "dch3_juazeiro_coordenacao_biblioteca",
+      "nome": "Coordenação de Biblioteca",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "biblioteca",
+      "unidadeId": "dch3_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dch3_juazeiro_coordenacao_tic": {
+      "id": "dch3_juazeiro_coordenacao_tic",
+      "nome": "Coordenação de Tecnologia da Informação e Comunicação (TIC)",
+      "sigla": "TIC",
+      "tipo": "coordenação",
+      "macroArea": "tecnologia",
+      "unidadeId": "dch3_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dch3_juazeiro_coordenacao_laboratorios": {
+      "id": "dch3_juazeiro_coordenacao_laboratorios",
+      "nome": "Coordenação de Laboratórios",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "laboratorios",
+      "unidadeId": "dch3_juazeiro",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dmce_lauro_freitas_gabinete_direcao": {
+      "id": "dmce_lauro_freitas_gabinete_direcao",
+      "nome": "Gabinete da Direção",
+      "sigla": "",
+      "tipo": "gabinete",
+      "macroArea": "gestao",
+      "unidadeId": "dmce_lauro_freitas",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dmce_lauro_freitas_coordenacao_administrativa": {
+      "id": "dmce_lauro_freitas_coordenacao_administrativa",
+      "nome": "Coordenação Administrativa",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "administrativo",
+      "unidadeId": "dmce_lauro_freitas",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dmce_lauro_freitas_coordenacao_orcamentaria_financeira_contabil": {
+      "id": "dmce_lauro_freitas_coordenacao_orcamentaria_financeira_contabil",
+      "nome": "Coordenação Orçamentária, Financeira e Contábil",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "financeiro",
+      "unidadeId": "dmce_lauro_freitas",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dmce_lauro_freitas_coordenacao_academica": {
+      "id": "dmce_lauro_freitas_coordenacao_academica",
+      "nome": "Coordenação Acadêmica",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "academico",
+      "unidadeId": "dmce_lauro_freitas",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dmce_lauro_freitas_coordenacao_biblioteca": {
+      "id": "dmce_lauro_freitas_coordenacao_biblioteca",
+      "nome": "Coordenação de Biblioteca",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "biblioteca",
+      "unidadeId": "dmce_lauro_freitas",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dmce_lauro_freitas_coordenacao_tic": {
+      "id": "dmce_lauro_freitas_coordenacao_tic",
+      "nome": "Coordenação de Tecnologia da Informação e Comunicação (TIC)",
+      "sigla": "TIC",
+      "tipo": "coordenação",
+      "macroArea": "tecnologia",
+      "unidadeId": "dmce_lauro_freitas",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dmce_lauro_freitas_coordenacao_laboratorios": {
+      "id": "dmce_lauro_freitas_coordenacao_laboratorios",
+      "nome": "Coordenação de Laboratórios",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "laboratorios",
+      "unidadeId": "dmce_lauro_freitas",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dedc_paulo_afonso_gabinete_direcao": {
+      "id": "dedc_paulo_afonso_gabinete_direcao",
+      "nome": "Gabinete da Direção",
+      "sigla": "",
+      "tipo": "gabinete",
+      "macroArea": "gestao",
+      "unidadeId": "dedc_paulo_afonso",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dedc_paulo_afonso_coordenacao_administrativa": {
+      "id": "dedc_paulo_afonso_coordenacao_administrativa",
+      "nome": "Coordenação Administrativa",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "administrativo",
+      "unidadeId": "dedc_paulo_afonso",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dedc_paulo_afonso_coordenacao_orcamentaria_financeira_contabil": {
+      "id": "dedc_paulo_afonso_coordenacao_orcamentaria_financeira_contabil",
+      "nome": "Coordenação Orçamentária, Financeira e Contábil",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "financeiro",
+      "unidadeId": "dedc_paulo_afonso",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dedc_paulo_afonso_coordenacao_academica": {
+      "id": "dedc_paulo_afonso_coordenacao_academica",
+      "nome": "Coordenação Acadêmica",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "academico",
+      "unidadeId": "dedc_paulo_afonso",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dedc_paulo_afonso_coordenacao_biblioteca": {
+      "id": "dedc_paulo_afonso_coordenacao_biblioteca",
+      "nome": "Coordenação de Biblioteca",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "biblioteca",
+      "unidadeId": "dedc_paulo_afonso",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dedc_paulo_afonso_coordenacao_tic": {
+      "id": "dedc_paulo_afonso_coordenacao_tic",
+      "nome": "Coordenação de Tecnologia da Informação e Comunicação (TIC)",
+      "sigla": "TIC",
+      "tipo": "coordenação",
+      "macroArea": "tecnologia",
+      "unidadeId": "dedc_paulo_afonso",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    },
+    "dedc_paulo_afonso_coordenacao_laboratorios": {
+      "id": "dedc_paulo_afonso_coordenacao_laboratorios",
+      "nome": "Coordenação de Laboratórios",
+      "sigla": "",
+      "tipo": "coordenação",
+      "macroArea": "laboratorios",
+      "unidadeId": "dedc_paulo_afonso",
+      "fonte": "unidades setores.pdf - p.2",
+      "active": true
+    }
+  }
+}

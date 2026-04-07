@@ -1,0 +1,15 @@
+node_modules
+.next
+.env
+.env.local
+serviceAccountKey.json
+*.zip
+*.tar.gz
+*.csv
+scripts/
+src/scripts/
+out/
+*backup*
+serviceAccountKey.json
+scripts/firestore-import/serviceAccount.json
+.firebase/
