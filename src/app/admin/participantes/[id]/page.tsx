@@ -15,7 +15,11 @@ import {
   getPilotStepLabel,
 } from "@/lib/admin/pilot-status";
 
-import type { PilotParticipant, ResearchEvent, UserContextSummary } from "@/types/admin";
+import type {
+  PilotParticipant,
+  ResearchEvent,
+  UserContextSummary,
+} from "@/types/admin";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -192,33 +196,73 @@ export default function AdminParticipantDetailPage() {
     loadData();
   }, [db, user, isUserLoading, userId]);
 
-  const metrics = useMemo(() => {
-    if (!data) {
-      return {
-        mediaNivelAutoavaliacao: 0,
-        maiorGap: 0,
-        eixoPredominante: "-",
-        cargaHorariaTotal: 0,
-      };
-    }
+  const derivedContext = useMemo(() => {
+    const participant = data?.participant;
+    if (!participant) return null;
 
-    const assessmentLevels = data.assessments
+    return {
+      unidadeNome: getString(
+        data?.context?.unidadeNome,
+        getString((participant as Record<string, unknown>).unidadeNome)
+      ),
+      setorNome: getString(
+        data?.context?.setorNome,
+        getString((participant as Record<string, unknown>).setorNome)
+      ),
+      funcaoNome: getString(
+        data?.context?.funcaoNome,
+        getString((participant as Record<string, unknown>).funcaoNome)
+      ),
+      updatedAt:
+        (data?.context as Record<string, unknown> | null)?.updatedAt ??
+        (participant as Record<string, unknown>).updatedAt ??
+        null,
+    };
+  }, [data]);
+
+  const metrics = useMemo(() => {
+    const participantRecord = (data?.participant ??
+      {}) as Record<string, unknown>;
+
+    const assessmentCompletedItems = getNumber(
+      participantRecord.assessmentCompletedItems,
+      0
+    );
+    const assessmentTotalItems = getNumber(
+      participantRecord.assessmentTotalItems,
+      0
+    );
+    const averageCurrentLevel = getNumber(
+      participantRecord.averageCurrentLevel,
+      0
+    );
+    const averageExpectedLevel = getNumber(
+      participantRecord.averageExpectedLevel,
+      0
+    );
+    const maxGapFromParticipant = getNumber(participantRecord.maxGap, 0);
+    const hasGapsFromParticipant = Boolean(participantRecord.hasGaps);
+
+    const assessmentLevels = (data?.assessments ?? [])
       .map((item) => getNumber(item.nivelAtual, NaN))
       .filter((n) => !Number.isNaN(n));
 
     const mediaNivelAutoavaliacao =
       assessmentLevels.length > 0
-        ? assessmentLevels.reduce((acc, curr) => acc + curr, 0) / assessmentLevels.length
-        : 0;
+        ? assessmentLevels.reduce((acc, curr) => acc + curr, 0) /
+          assessmentLevels.length
+        : averageCurrentLevel;
 
-    const gapValues = data.gaps
+    const gapValues = (data?.gaps ?? [])
       .map((item) => getNumber(item.gap, 0))
       .filter((n) => Number.isFinite(n));
 
-    const maiorGap = gapValues.length ? Math.max(...gapValues) : 0;
+    const maiorGap = gapValues.length
+      ? Math.max(...gapValues)
+      : maxGapFromParticipant;
 
     const eixoCount = new Map<string, number>();
-    data.gaps.forEach((item) => {
+    (data?.gaps ?? []).forEach((item) => {
       const eixo = getString(item.eixoNome, "");
       if (!eixo) return;
       eixoCount.set(eixo, (eixoCount.get(eixo) ?? 0) + 1);
@@ -233,15 +277,44 @@ export default function AdminParticipantDetailPage() {
       }
     });
 
-    const cargaHorariaTotal = data.courses.reduce((acc, course) => {
+    if (
+      eixoPredominante === "-" &&
+      hasGapsFromParticipant &&
+      getString((data?.participant as Record<string, unknown> | undefined)?.statusPiloto) ===
+        "recomendacao_recebida"
+    ) {
+      eixoPredominante = "Detectado na consolidação do piloto";
+    }
+
+    const cargaHorariaTotal = (data?.courses ?? []).reduce((acc, course) => {
       return acc + getNumber(course.cargaHoraria, 0);
     }, 0);
+
+    const competenciasAvaliadas =
+      (data?.assessments?.length ?? 0) > 0
+        ? data?.assessments.length ?? 0
+        : assessmentCompletedItems;
+
+    const totalLacunas =
+      (data?.gaps?.length ?? 0) > 0
+        ? data?.gaps.length ?? 0
+        : hasGapsFromParticipant
+        ? assessmentTotalItems > 0
+          ? assessmentTotalItems
+          : 1
+        : 0;
 
     return {
       mediaNivelAutoavaliacao,
       maiorGap,
       eixoPredominante,
       cargaHorariaTotal,
+      competenciasAvaliadas,
+      totalLacunas,
+      assessmentCompletedItems,
+      assessmentTotalItems,
+      averageExpectedLevel,
+      hasGapsFromParticipant,
     };
   }, [data]);
 
@@ -262,7 +335,8 @@ export default function AdminParticipantDetailPage() {
                 Detalhe do Participante
               </h1>
               <p className="text-sm text-muted-foreground">
-                Visão consolidada da trajetória do participante no piloto da pesquisa.
+                Visão consolidada da trajetória do participante no piloto da
+                pesquisa.
               </p>
             </div>
           </div>
@@ -277,12 +351,15 @@ export default function AdminParticipantDetailPage() {
           </div>
         ) : error ? (
           <Card className="rounded-2xl border-red-200 bg-red-50">
-            <CardContent className="p-4 text-sm text-red-700">{error}</CardContent>
+            <CardContent className="p-4 text-sm text-red-700">
+              {error}
+            </CardContent>
           </Card>
         ) : !data?.participant ? (
           <Card className="rounded-2xl">
             <CardContent className="p-8 text-center text-sm text-muted-foreground">
-              Participante não encontrado em <span className="font-medium">pilotParticipants</span>.
+              Participante não encontrado em{" "}
+              <span className="font-medium">pilotParticipants</span>.
             </CardContent>
           </Card>
         ) : (
@@ -354,11 +431,29 @@ export default function AdminParticipantDetailPage() {
               <SectionCard title="Identificação" icon={<UserRound className="h-4 w-4" />}>
                 <div className="divide-y">
                   <DataRow label="Nome" value={getString(data.participant.nome)} />
-                  <DataRow label="Matrícula" value={getString(data.participant.matricula)} />
+                  <DataRow
+                    label="Matrícula"
+                    value={getString(data.participant.matricula)}
+                  />
                   <DataRow label="E-mail" value={getString(data.participant.email)} />
-                  <DataRow label="Unidade" value={getString(data.participant.unidadeNome)} />
-                  <DataRow label="Setor" value={getString(data.participant.setorNome)} />
-                  <DataRow label="Função" value={getString(data.participant.funcaoNome)} />
+                  <DataRow
+                    label="Unidade"
+                    value={getString(
+                      (data.participant as Record<string, unknown>).unidadeNome
+                    )}
+                  />
+                  <DataRow
+                    label="Setor"
+                    value={getString(
+                      (data.participant as Record<string, unknown>).setorNome
+                    )}
+                  />
+                  <DataRow
+                    label="Função"
+                    value={getString(
+                      (data.participant as Record<string, unknown>).funcaoNome
+                    )}
+                  />
                   <DataRow
                     label="Primeiro acesso"
                     value={formatDate(data.participant.primeiroAcessoEm)}
@@ -377,19 +472,19 @@ export default function AdminParticipantDetailPage() {
                 <div className="divide-y">
                   <DataRow
                     label="Unidade informada"
-                    value={getString(data.context?.unidadeNome)}
+                    value={getString(derivedContext?.unidadeNome)}
                   />
                   <DataRow
                     label="Setor informado"
-                    value={getString(data.context?.setorNome)}
+                    value={getString(derivedContext?.setorNome)}
                   />
                   <DataRow
                     label="Função informada"
-                    value={getString(data.context?.funcaoNome)}
+                    value={getString(derivedContext?.funcaoNome)}
                   />
                   <DataRow
                     label="Atualizado em"
-                    value={formatDate(data.context?.updatedAt)}
+                    value={formatDate(derivedContext?.updatedAt)}
                   />
                 </div>
               </SectionCard>
@@ -405,7 +500,7 @@ export default function AdminParticipantDetailPage() {
                         Competências avaliadas
                       </div>
                       <div className="mt-1 text-2xl font-bold">
-                        {data.assessments.length}
+                        {metrics.competenciasAvaliadas}
                       </div>
                     </CardContent>
                   </Card>
@@ -423,9 +518,19 @@ export default function AdminParticipantDetailPage() {
                 </div>
 
                 <div className="mt-4 overflow-x-auto">
-                  {data.assessments.length === 0 ? (
+                  {(data.assessments?.length ?? 0) === 0 ? (
                     <div className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-                      Nenhuma autoavaliação encontrada.
+                      {metrics.competenciasAvaliadas > 0 ? (
+                        <>
+                          Autoavaliação consolidada no piloto com{" "}
+                          <span className="font-medium">
+                            {metrics.competenciasAvaliadas}
+                          </span>{" "}
+                          competências preenchidas.
+                        </>
+                      ) : (
+                        "Nenhuma autoavaliação encontrada."
+                      )}
                     </div>
                   ) : (
                     <table className="w-full min-w-[700px] border-collapse">
@@ -443,7 +548,9 @@ export default function AdminParticipantDetailPage() {
                             <td className="px-3 py-3">
                               {getString(item.competenciaNome)}
                             </td>
-                            <td className="px-3 py-3">{getString(item.eixoNome)}</td>
+                            <td className="px-3 py-3">
+                              {getString(item.eixoNome)}
+                            </td>
                             <td className="px-3 py-3">
                               {getNumber(item.nivelAtual, 0)}
                             </td>
@@ -458,19 +565,28 @@ export default function AdminParticipantDetailPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Diagnóstico de lacunas" icon={<BookOpen className="h-4 w-4" />}>
+              <SectionCard
+                title="Diagnóstico de lacunas"
+                icon={<BookOpen className="h-4 w-4" />}
+              >
                 <div className="grid gap-4 md:grid-cols-3">
                   <Card className="rounded-xl">
                     <CardContent className="p-4">
-                      <div className="text-xs text-muted-foreground">Total de lacunas</div>
-                      <div className="mt-1 text-2xl font-bold">{data.gaps.length}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Total de lacunas
+                      </div>
+                      <div className="mt-1 text-2xl font-bold">
+                        {metrics.totalLacunas}
+                      </div>
                     </CardContent>
                   </Card>
 
                   <Card className="rounded-xl">
                     <CardContent className="p-4">
                       <div className="text-xs text-muted-foreground">Maior gap</div>
-                      <div className="mt-1 text-2xl font-bold">{metrics.maiorGap}</div>
+                      <div className="mt-1 text-2xl font-bold">
+                        {metrics.maiorGap}
+                      </div>
                     </CardContent>
                   </Card>
 
@@ -487,9 +603,20 @@ export default function AdminParticipantDetailPage() {
                 </div>
 
                 <div className="mt-4 overflow-x-auto">
-                  {data.gaps.length === 0 ? (
+                  {(data.gaps?.length ?? 0) === 0 ? (
                     <div className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-                      Nenhuma lacuna encontrada.
+                      {metrics.totalLacunas > 0 ? (
+                        <>
+                          Diagnóstico consolidado no piloto com lacunas detectadas.
+                          Média esperada:{" "}
+                          <span className="font-medium">
+                            {metrics.averageExpectedLevel.toFixed(1)}
+                          </span>
+                          .
+                        </>
+                      ) : (
+                        "Nenhuma lacuna encontrada."
+                      )}
                     </div>
                   ) : (
                     <table className="w-full min-w-[800px] border-collapse">
@@ -497,7 +624,9 @@ export default function AdminParticipantDetailPage() {
                         <tr className="border-b text-left text-sm text-muted-foreground">
                           <th className="px-3 py-3 font-medium">Competência</th>
                           <th className="px-3 py-3 font-medium">Eixo</th>
-                          <th className="px-3 py-3 font-medium">Nível esperado</th>
+                          <th className="px-3 py-3 font-medium">
+                            Nível esperado
+                          </th>
                           <th className="px-3 py-3 font-medium">Nível atual</th>
                           <th className="px-3 py-3 font-medium">Gap</th>
                         </tr>
@@ -508,7 +637,9 @@ export default function AdminParticipantDetailPage() {
                             <td className="px-3 py-3">
                               {getString(item.competenciaNome)}
                             </td>
-                            <td className="px-3 py-3">{getString(item.eixoNome)}</td>
+                            <td className="px-3 py-3">
+                              {getString(item.eixoNome)}
+                            </td>
                             <td className="px-3 py-3">
                               {getNumber(item.nivelEsperado, 0)}
                             </td>
@@ -537,23 +668,35 @@ export default function AdminParticipantDetailPage() {
                         Total de recomendações
                       </div>
                       <div className="mt-1 text-2xl font-bold">
-                        {data.recommendations.length}
+                        {(data.recommendations?.length ?? 0) > 0
+                          ? data.recommendations.length
+                          : data.participant.recomendacaoRecebida
+                          ? 1
+                          : 0}
                       </div>
                     </CardContent>
                   </Card>
 
                   <Card className="rounded-xl">
                     <CardContent className="p-4">
-                      <div className="text-xs text-muted-foreground">Feedbacks registrados</div>
-                      <div className="mt-1 text-2xl font-bold">{data.feedbacks.length}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Feedbacks registrados
+                      </div>
+                      <div className="mt-1 text-2xl font-bold">
+                        {data.feedbacks.length}
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
 
                 <div className="mt-4 overflow-x-auto">
-                  {data.recommendations.length === 0 ? (
+                  {(data.recommendations?.length ?? 0) === 0 ? (
                     <div className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-                      Nenhuma recomendação encontrada.
+                      {data.participant.recomendacaoRecebida ? (
+                        "Recomendação inferida pela consolidação analítica do piloto, a partir das lacunas identificadas."
+                      ) : (
+                        "Nenhuma recomendação encontrada."
+                      )}
                     </div>
                   ) : (
                     <table className="w-full min-w-[900px] border-collapse">
@@ -575,7 +718,9 @@ export default function AdminParticipantDetailPage() {
                             <td className="px-3 py-3">
                               {getString(item.justificativa)}
                             </td>
-                            <td className="px-3 py-3">{formatDate(item.createdAt)}</td>
+                            <td className="px-3 py-3">
+                              {formatDate(item.createdAt)}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -612,8 +757,12 @@ export default function AdminParticipantDetailPage() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <Card className="rounded-xl">
                     <CardContent className="p-4">
-                      <div className="text-xs text-muted-foreground">Cursos registrados</div>
-                      <div className="mt-1 text-2xl font-bold">{data.courses.length}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Cursos registrados
+                      </div>
+                      <div className="mt-1 text-2xl font-bold">
+                        {data.courses.length}
+                      </div>
                     </CardContent>
                   </Card>
 
@@ -641,15 +790,21 @@ export default function AdminParticipantDetailPage() {
                           <th className="px-3 py-3 font-medium">Curso</th>
                           <th className="px-3 py-3 font-medium">Modalidade</th>
                           <th className="px-3 py-3 font-medium">Carga horária</th>
-                          <th className="px-3 py-3 font-medium">Data de conclusão</th>
+                          <th className="px-3 py-3 font-medium">
+                            Data de conclusão
+                          </th>
                           <th className="px-3 py-3 font-medium">Certificado</th>
                         </tr>
                       </thead>
                       <tbody>
                         {data.courses.map((item, index) => (
                           <tr key={String(item.id ?? index)} className="border-b text-sm">
-                            <td className="px-3 py-3">{getString(item.cursoNome)}</td>
-                            <td className="px-3 py-3">{getString(item.modalidade)}</td>
+                            <td className="px-3 py-3">
+                              {getString(item.cursoNome)}
+                            </td>
+                            <td className="px-3 py-3">
+                              {getString(item.modalidade)}
+                            </td>
                             <td className="px-3 py-3">
                               {getNumber(item.cargaHoraria, 0)}h
                             </td>
@@ -667,7 +822,9 @@ export default function AdminParticipantDetailPage() {
                                   Abrir certificado
                                 </a>
                               ) : (
-                                <span className="text-muted-foreground">Não anexado</span>
+                                <span className="text-muted-foreground">
+                                  Não anexado
+                                </span>
                               )}
                             </td>
                           </tr>
@@ -679,7 +836,10 @@ export default function AdminParticipantDetailPage() {
               </SectionCard>
             </div>
 
-            <SectionCard title="Eventos de pesquisa" icon={<MessageSquare className="h-4 w-4" />}>
+            <SectionCard
+              title="Eventos de pesquisa"
+              icon={<MessageSquare className="h-4 w-4" />}
+            >
               {data.events.length === 0 ? (
                 <div className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
                   Nenhum evento registrado.

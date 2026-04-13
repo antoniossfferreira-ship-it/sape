@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck, UserRound } from "lucide-react";
 import { logResearchEvent } from "@/lib/analytics";
 
 const NIVEIS_FORMACAO = [
@@ -39,8 +39,11 @@ const NIVEIS_FORMACAO = [
   "Doutorado",
 ];
 
+type AccessMode = "participante" | "admin";
+
 export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
+  const [accessMode, setAccessMode] = useState<AccessMode>("participante");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -126,8 +129,16 @@ export default function AuthPage() {
 
         toast({
           title: "Bem-vindo!",
-          description: "Login realizado com sucesso.",
+          description:
+            accessMode === "admin"
+              ? "Acesso administrativo realizado com sucesso."
+              : "Login realizado com sucesso.",
         });
+
+        if (accessMode === "admin") {
+          router.push("/admin/pesquisa");
+          return;
+        }
 
         router.push("/dashboard");
       } else {
@@ -201,6 +212,16 @@ export default function AuthPage() {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  const switchAccessMode = (newMode: AccessMode) => {
+    setAccessMode(newMode);
+    setMode("login");
+    setFormData((prev) => ({
+      ...prev,
+      email: "",
+      password: "",
+    }));
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
       <Card className="w-full max-w-xl border-slate-200 shadow-lg">
@@ -223,22 +244,106 @@ export default function AuthPage() {
 
           <CardDescription>
             {mode === "login"
-              ? "Acesse o Sistema de Aprendizagem Personalizada da UNEB"
+              ? accessMode === "admin"
+                ? "Acesse a área administrativa e o painel analítico da pesquisa"
+                : "Acesse o Sistema de Aprendizagem Personalizada da UNEB"
               : "Cadastre-se para iniciar seu percurso formativo"}
           </CardDescription>
         </CardHeader>
 
+        {mode === "login" && (
+          <div className="px-6 pb-2">
+            <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1.5">
+              <button
+                type="button"
+                onClick={() => switchAccessMode("participante")}
+                className={`flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition ${
+                  accessMode === "participante"
+                    ? "bg-white text-primary shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <UserRound className="h-4 w-4" />
+                Acesso do participante
+              </button>
+
+              <button
+                type="button"
+                onClick={() => switchAccessMode("admin")}
+                className={`flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition ${
+                  accessMode === "admin"
+                    ? "bg-white text-primary shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Acesso do administrador
+              </button>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {mode === "login" && (
+              <div
+                className={`rounded-xl border px-4 py-4 ${
+                  accessMode === "participante"
+                    ? "border-sky-100 bg-sky-50"
+                    : "border-amber-100 bg-amber-50"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`mt-0.5 rounded-full p-2 ${
+                      accessMode === "participante"
+                        ? "bg-sky-100 text-sky-700"
+                        : "bg-amber-100 text-amber-700"
+                    }`}
+                  >
+                    {accessMode === "participante" ? (
+                      <UserRound className="h-4 w-4" />
+                    ) : (
+                      <ShieldCheck className="h-4 w-4" />
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-slate-800">
+                      {accessMode === "participante"
+                        ? "Login do participante"
+                        : "Login da área administrativa"}
+                    </p>
+                    <p className="text-xs leading-relaxed text-slate-600">
+                      {accessMode === "participante"
+                        ? "Entre com seu e-mail institucional e senha para acessar as etapas do sistema, realizar a autoavaliação e visualizar suas recomendações."
+                        : "Entre com suas credenciais para acessar o painel administrativo e acompanhar os dados analíticos da pesquisa e do piloto."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="email">E-mail Institucional</Label>
+                <Label htmlFor="email">
+                  {mode === "login"
+                    ? accessMode === "admin"
+                      ? "E-mail do administrador"
+                      : "E-mail Institucional"
+                    : "E-mail Institucional"}
+                </Label>
                 <Input
                   id="email"
                   type="email"
                   value={formData.email}
                   onChange={handleInputChange}
                   required
+                  placeholder={
+                    mode === "login" && accessMode === "admin"
+                      ? "admin@uneb.br"
+                      : "seuemail@uneb.br"
+                  }
                 />
               </div>
 
@@ -364,19 +469,25 @@ export default function AuthPage() {
           <CardFooter className="flex flex-col gap-4">
             <Button type="submit" className="h-11 w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {mode === "login" ? "Entrar" : "Criar Conta"}
+              {mode === "login"
+                ? accessMode === "admin"
+                  ? "Entrar na área administrativa"
+                  : "Entrar"
+                : "Criar Conta"}
             </Button>
 
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full"
-              onClick={() => setMode(mode === "login" ? "register" : "login")}
-            >
-              {mode === "login"
-                ? "Não tem conta? Cadastre-se"
-                : "Já tem conta? Entre aqui"}
-            </Button>
+            {accessMode === "participante" && (
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setMode(mode === "login" ? "register" : "login")}
+              >
+                {mode === "login"
+                  ? "Não tem conta? Cadastre-se"
+                  : "Já tem conta? Entre aqui"}
+              </Button>
+            )}
           </CardFooter>
         </form>
       </Card>

@@ -1,4 +1,4 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
@@ -12,10 +12,18 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
 };
 
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+const APP_NAME = 'research-app';
+
+function getResearchApp(): FirebaseApp {
+  const existing = getApps().find((app) => app.name === APP_NAME);
+  if (existing) return existing;
+  return initializeApp(firebaseConfig, APP_NAME);
+}
+
+const app = getResearchApp();
 
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-export { auth, db, storage };
+export { app, auth, db, storage };

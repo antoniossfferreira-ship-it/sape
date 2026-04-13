@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: [
     '6000-firebase-studio-1772649924486.cluster-r7kbxfo3fnev2vskbkhhphetq6.cloudworkstations.dev',
     '9000-firebase-studio-1772649924486.cluster-r7kbxfo3fnev2vskbkhhphetq6.cloudworkstations.dev',
+    '9003-firebase-sisrecomendaja2-1775478802953.cluster-r7kbxfo3fnev2vskbkhhphetq6.cloudworkstations.dev',
+    '*.firebase.studio',
+    '*.cloudworkstations.dev',
+    'localhost',
+    '127.0.0.1',
   ],
 
   typescript: {
@@ -40,7 +45,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  //output: 'export',
+  // output: 'export',
 };
 
 export default nextConfig;
